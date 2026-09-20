@@ -65,7 +65,8 @@ def remove_game_result(i):
 
 
 def add_game_result():
-    state.game_results.append(GameResult(text=state.new_item_text))
+	clean_text = state.new_item_text.replace(" ","").strip()
+    state.game_results.append(GameResult(text=clean_text))
     state.new_item_text = ""
     save_data(state.game_results)
 
