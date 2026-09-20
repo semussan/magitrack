@@ -236,7 +236,7 @@ with right_right:
         text=[str(i) for i in nodes],
         textposition="top center",
         hovertext=[
-            json.dumps(decks[d]["matchups"], indent=2).replace("\n", "<br>").replace(" ", "&nbsp;")
+            f"{decks[d]["winrate"]:.2%} WR<br>"+json.dumps(decks[d]["matchups"], indent=2).replace("\n", "<br>").replace(" ", "&nbsp;")
             for d in nodes
         ],
         hoverinfo="text",
