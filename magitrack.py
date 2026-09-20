@@ -19,6 +19,16 @@ import uuid
 import plotly.graph_objects as go
 import random
 import json
+import requests
+
+GIST_ID = st.secrets["GIST_ID"]
+GITHUB_TOKEN = st.secrets["GITHUB_TOKEN"]
+GIST_FILENAME = "magitrack_data.json"
+
+HEADERS = {
+    "Authorization": f"token {GITHUB_TOKEN}",
+    "Accept": "application/vnd.github+json",
+}
 
 st.set_page_config(page_title="Magi-Track", page_icon=":memo:", layout="wide")
 
@@ -29,32 +39,46 @@ cols = st.columns([1, 2])
 @dataclass
 class GameResult:
     text: str
-    is_done = False
+    is_done: bool = False
     uid: uuid.UUID = field(default_factory=uuid.uuid4)
 
+def load_data():
+    r = requests.get(f"https://api.github.com/gists/{GIST_ID}", headers=HEADERS)
+    r.raise_for_status()
+    content = r.json()["files"][GIST_FILENAME]["content"]
+    raw = json.loads(content).get("game_results", [])
+    return [GameResult(text=item["text"], is_done=item.get("is_done", False)) for item in raw]
+
+def save_data(data):
+    serializable = {"game_results": [{"text": g.text, "is_done": g.is_done} for g in data]}
+    payload = {"files": {GIST_FILENAME: {"content": json.dumps(serializable, indent=2)}}}
+    r = requests.patch(f"https://api.github.com/gists/{GIST_ID}", headers=HEADERS, json=payload)
+    r.raise_for_status()
 
 if "game_results" not in state:
-    state.game_results = [
-        GameResult(text="Bruda-Thick,Pope-Minth"),
-        GameResult(text="Radha-Human,Casca-Aegar"),
-    ]
+    state.game_results = load_data()
 
 
 def remove_game_result(i):
     state.game_results.pop(i)
+    save_data(state.game_results)
 
 
 def add_game_result():
     state.game_results.append(GameResult(text=state.new_item_text))
     state.new_item_text = ""
+    save_data(state.game_results)
 
 
 def check_game_result(i, new_value):
     state.game_results[i].is_done = new_value
+    save_data(state.game_results)
+
 
 
 def delete_all_checked():
     state.game_results = [t for t in state.game_results if not t.is_done]
+    save_data(state.game_results)
 
 
 left_side = cols[0].container(
