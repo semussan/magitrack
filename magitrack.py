@@ -37,7 +37,6 @@ if "game_results" not in state:
     state.game_results = [
         GameResult(text="Bruda-Thick,Pope-Minth"),
         GameResult(text="Radha-Human,Casca-Aegar"),
-        GameResult(text="Bruda-Human,Casca-Radha"),
     ]
 
 
