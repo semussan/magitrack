@@ -70,15 +70,7 @@ def add_game_result():
     save_data(state.game_results)
 
 
-def check_game_result(i, new_value):
-    state.game_results[i].is_done = new_value
-    save_data(state.game_results)
 
-
-
-def delete_all_checked():
-    state.game_results = [t for t in state.game_results if not t.is_done]
-    save_data(state.game_results)
 
 
 left_side = cols[0].container(
@@ -107,13 +99,8 @@ with left_side:
         with st.container(gap=None, border=True):
             for i, game_result in enumerate(state.game_results):
                 with st.container(horizontal=True, vertical_alignment="center"):
-                    st.checkbox(
+                    st.text(
                         game_result.text,
-                        value=game_result.is_done,
-                        width="stretch",
-                        on_change=check_game_result,
-                        args=[i, not game_result.is_done],
-                        key=f"game_result-chk-{game_result.uid}",
                     )
                     st.button(
                         ":material/delete:",
@@ -122,14 +109,6 @@ with left_side:
                         args=[i],
                         key=f"delete_{i}",
                     )
-
-        with st.container(horizontal=True, horizontal_alignment="center"):
-            st.button(
-                ":small[Delete all checked]",
-                icon=":material/delete_forever:",
-                type="tertiary",
-                on_click=delete_all_checked,
-            )
 
     else:
         st.info("No to-do items. Go fly a kite! :material/family_link:")
